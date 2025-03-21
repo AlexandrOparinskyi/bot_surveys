@@ -1,14 +1,14 @@
 from aiogram.filters import BaseFilter
 from aiogram.types import Message
-from sqlalchemy import select, and_
+from sqlalchemy import select
 
 from database.connect import get_async_session
 from database.models import BotCommand
 
 
-class SurveySlugAndActiveFilter(BaseFilter):
+class BotCommandFilter(BaseFilter):
     async def __call__(self, message: Message, *args, **kwargs):
         async with get_async_session() as session:
             commands = await session.scalars(select(BotCommand))
-            return message.text in commands.all()
-
+            res = [c.command for c in commands.all()]
+            return message.text.replace("/", "") in res
