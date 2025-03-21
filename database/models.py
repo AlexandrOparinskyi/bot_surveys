@@ -11,3 +11,11 @@ class BotCommand(Base):
 
     command = Column(String(20), nullable=False)
     text = Column(Text, nullable=False)
+
+
+class RegisterCommand(Base):
+    __tablename__ = "register_commands"
+
+    command = Column(String(50), nullable=False)
+    text = Column(Text, nullable=False)
+    description = Column(String, nullable=True)

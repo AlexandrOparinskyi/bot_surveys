@@ -1,28 +1,22 @@
-from aiogram import Router
-from aiogram.filters import CommandStart
+from aiogram import Router, F
 from aiogram.types import Message
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.connect import get_async_session
 from database.models import BotCommand
 
 user_router = Router()
 
 
-@user_router.message(CommandStart())
-async def process_start_command(message: Message):
-    await message.answer("Hello bro")
+@user_router.message(F.text.startswith("/"))
+async def process_another_command(message: Message, session: AsyncSession):
+    command_query = select(BotCommand).where(
+        BotCommand.command == message.text.replace("/", "")
+    )
+    command = await session.scalar(command_query)
 
+    if not command:
+        await message.answer("Я не знаю такой команды 😕")
+        return
 
-@user_router.message()
-async def process_another_command(message: Message):
-    async with get_async_session() as session:
-        command_query = select(BotCommand).where(
-            BotCommand.command == message.text.replace("/", "")
-        )
-        command = await session.scalar(command_query)
-        if not command:
-            await message.answer("Command not found!")
-            return
-
-        await message.answer(command.text)
+    await message.answer(command.text)

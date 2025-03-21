@@ -5,6 +5,7 @@ from aiogram import Bot, Dispatcher
 
 from config import load_config, Config
 from handlers.user_handlers import user_router
+from middlewares.connect_database_middleware import ConnectDatabaseMiddleware
 
 
 async def main():
@@ -16,6 +17,8 @@ async def main():
     dp: Dispatcher = Dispatcher()
 
     dp.include_router(user_router)
+
+    dp.update.middleware(ConnectDatabaseMiddleware())
 
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
