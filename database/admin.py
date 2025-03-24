@@ -1,9 +1,10 @@
 from fastapi import FastAPI
+from pydantic_core.core_schema import model_field
 from sqladmin import Admin, ModelView
 
 from database.connect import engine
 from database.models import (BotCommand,
-                             RegisterCommand)
+                             RegisterCommand, User)
 
 app = FastAPI()
 admin = Admin(app, engine)
@@ -23,6 +24,13 @@ class RegisterCommandAdmin(ModelView, model=RegisterCommand):
     column_list = (RegisterCommand.id,
                    RegisterCommand.command,
                    RegisterCommand.description)
+
+
+class UserAdmin(ModelView, model=User):
+    name = "Пользователь"
+    name_plural = "Пользователи"
+    page_size = 25
+    column_list = (User.id, User.name, User.surname)
 
 
 admin.add_view(BotCommandAdmin)
