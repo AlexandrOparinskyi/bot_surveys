@@ -38,8 +38,7 @@ ALTER TABLE public.alembic_version OWNER TO postgres;
 CREATE TABLE public.bot_commands (
     command character varying(20) NOT NULL,
     text text NOT NULL,
-    id integer NOT NULL,
-    in_main_menu boolean
+    id integer NOT NULL
 );
 
 
@@ -65,6 +64,78 @@ ALTER SEQUENCE public.bot_commands_id_seq OWNER TO postgres;
 --
 
 ALTER SEQUENCE public.bot_commands_id_seq OWNED BY public.bot_commands.id;
+
+
+--
+-- Name: options; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.options (
+    text character varying NOT NULL,
+    survey_id integer NOT NULL,
+    question_id integer NOT NULL,
+    is_correct boolean NOT NULL,
+    id integer NOT NULL
+);
+
+
+ALTER TABLE public.options OWNER TO postgres;
+
+--
+-- Name: options_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.options_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.options_id_seq OWNER TO postgres;
+
+--
+-- Name: options_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.options_id_seq OWNED BY public.options.id;
+
+
+--
+-- Name: questions; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.questions (
+    text character varying NOT NULL,
+    survey_id integer NOT NULL,
+    id integer NOT NULL
+);
+
+
+ALTER TABLE public.questions OWNER TO postgres;
+
+--
+-- Name: questions_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.questions_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.questions_id_seq OWNER TO postgres;
+
+--
+-- Name: questions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.questions_id_seq OWNED BY public.questions.id;
 
 
 --
@@ -101,6 +172,117 @@ ALTER SEQUENCE public.register_commands_id_seq OWNER TO postgres;
 --
 
 ALTER SEQUENCE public.register_commands_id_seq OWNED BY public.register_commands.id;
+
+
+--
+-- Name: survey_results; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.survey_results (
+    survey_id integer NOT NULL,
+    min_point integer NOT NULL,
+    max_point integer NOT NULL,
+    text_result character varying NOT NULL,
+    description text,
+    id integer NOT NULL
+);
+
+
+ALTER TABLE public.survey_results OWNER TO postgres;
+
+--
+-- Name: survey_results_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.survey_results_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.survey_results_id_seq OWNER TO postgres;
+
+--
+-- Name: survey_results_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.survey_results_id_seq OWNED BY public.survey_results.id;
+
+
+--
+-- Name: surveys; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.surveys (
+    title character varying(50) NOT NULL,
+    description text NOT NULL,
+    slug character varying(50) NOT NULL,
+    id integer NOT NULL,
+    is_active boolean NOT NULL
+);
+
+
+ALTER TABLE public.surveys OWNER TO postgres;
+
+--
+-- Name: surveys_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.surveys_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.surveys_id_seq OWNER TO postgres;
+
+--
+-- Name: surveys_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.surveys_id_seq OWNED BY public.surveys.id;
+
+
+--
+-- Name: user_points; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.user_points (
+    points integer NOT NULL,
+    user_id integer NOT NULL,
+    survey_id integer NOT NULL,
+    id integer NOT NULL
+);
+
+
+ALTER TABLE public.user_points OWNER TO postgres;
+
+--
+-- Name: user_points_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.user_points_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.user_points_id_seq OWNER TO postgres;
+
+--
+-- Name: user_points_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.user_points_id_seq OWNED BY public.user_points.id;
 
 
 --
@@ -150,10 +332,45 @@ ALTER TABLE ONLY public.bot_commands ALTER COLUMN id SET DEFAULT nextval('public
 
 
 --
+-- Name: options id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.options ALTER COLUMN id SET DEFAULT nextval('public.options_id_seq'::regclass);
+
+
+--
+-- Name: questions id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.questions ALTER COLUMN id SET DEFAULT nextval('public.questions_id_seq'::regclass);
+
+
+--
 -- Name: register_commands id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.register_commands ALTER COLUMN id SET DEFAULT nextval('public.register_commands_id_seq'::regclass);
+
+
+--
+-- Name: survey_results id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.survey_results ALTER COLUMN id SET DEFAULT nextval('public.survey_results_id_seq'::regclass);
+
+
+--
+-- Name: surveys id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.surveys ALTER COLUMN id SET DEFAULT nextval('public.surveys_id_seq'::regclass);
+
+
+--
+-- Name: user_points id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.user_points ALTER COLUMN id SET DEFAULT nextval('public.user_points_id_seq'::regclass);
 
 
 --
@@ -168,7 +385,7 @@ ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_
 --
 
 COPY public.alembic_version (version_num) FROM stdin;
-38b971a6e41f
+26deadbb7441
 \.
 
 
@@ -176,10 +393,78 @@ COPY public.alembic_version (version_num) FROM stdin;
 -- Data for Name: bot_commands; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.bot_commands (command, text, id, in_main_menu) FROM stdin;
-help	Это команда /help\r\nПотом здесь будет прописана вся важная информация и часто задаваемые вопросы	2	t
-start	Приветствую\r\nЯ бот для опросов\r\nДавай знакомиться	1	f
-test	Это тестовая команда	4	t
+COPY public.bot_commands (command, text, id) FROM stdin;
+help	Это команда /help\r\nПотом здесь будет прописана вся важная информация и часто задаваемые вопросы	2
+start	Приветствую\r\nЯ бот для опросов\r\nДавай знакомиться	1
+test	Это тестовая команда	4
+\.
+
+
+--
+-- Data for Name: options; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.options (text, survey_id, question_id, is_correct, id) FROM stdin;
+Это просто программа на компьютере, как и другие - Word или Chrome.	1	1	f	4
+Это показатель того, какой процессор используется на компьютере. Например, 32-битный или 64-битный.	1	1	f	5
+Это набор взаимосвязанных программ, осуществляющих управление компьютером и взаимодействие с пользователем.	1	1	t	6
+Да, это такая же ОС, как и другие, просто для мобильных девайсов.	1	2	t	7
+Нет, операционные системы бывают только для ПК.	1	2	f	8
+Нет, Android это программа, которая ставится на операционную систему девайса. ОС на разных девайсах разные.	1	2	f	9
+Это блок, внутри которого находится дисковод и много разъемов для монитора, клавиатуры и компьютерной мышки.	1	3	f	10
+Это суммарный показатель вычислительной мощности компьютера, например 2,7 ГГц.	1	3	f	11
+Это элемент компьютера, с помощью которого обрабатывается информация, находящаяся как в собственной памяти, так и в памяти других устройств.	1	3	t	12
+32 и 64 бита	1	4	t	13
+86 и 64 бита	1	4	f	15
+iOS использует Intel, остальные используют AMD.	1	5	f	16
+Чаще всего используют Intel.	1	5	f	17
+Чаще всего используют ARM.	1	5	t	18
+Для долгосрочного хранения данных.	1	6	f	20
+Для правильной фрагментации памяти.	1	6	f	21
+Для быстрого доступа к данным.	1	6	t	19
+12 и 32 бита	1	4	f	14
+HDD - это твердотельный накопитель без подвижных частей. Более дешевый, чем SSD. HDD работает быстрее.	1	7	f	22
+HDD - это твердотельный накопитель без подвижных частей. Более дорогой, чем SSD. HDD работает быстрее.	1	7	f	23
+SSD - это твердотельный накопитель без подвижных частей. Более дорогой, чем HDD. SSD работает быстрее.	1	7	t	24
+USB отличаются по форме (micro-USB, mini-USB, lightning и т.д.) и пропускной способности (USB 2.0, USB 3.2).	1	8	t	25
+USB отличаются по пропускной способности (micro-USB, mini-USB, lightning и т.д.) и форме (USB 2.0, USB 3.2).	1	8	f	26
+Бывают только micro-USB и mini-USB	1	8	f	27
+Аксиома	2	9	t	28
+Абсцисса	2	9	f	29
+Аргумент	2	9	f	30
+Прямая	2	10	f	31
+Биссектриса	2	10	t	32
+Вектор	2	10	f	33
+Диагональ	2	11	t	34
+Градус	2	11	f	35
+Гипербола	2	11	f	36
+Знаменатель	2	12	t	37
+Индекс	2	12	f	38
+Слагаемое	2	12	f	39
+Интеграл	2	13	f	40
+Катет	2	13	t	41
+Ребро	2	13	f	42
+\.
+
+
+--
+-- Data for Name: questions; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.questions (text, survey_id, id) FROM stdin;
+Что такое операционная система?	1	1
+Является ли Android операционной системой?	1	2
+Что такое процессор компьютера?	1	3
+Какие бывают разрядности у современных процессоров?	1	4
+Какой тип процессора чаще всего используют мобильные девайсы?	1	5
+Для чего компьютеру нужна RAM?	1	6
+Чем отличается HDD от SSD?	1	7
+Как отличаются между собой USB?	1	8
+Как называется утверждение, принимаемое без доказательств?	2	9
+Луч, имеющий начало в вершине угла (делит угол на две части)?	2	10
+Отрезок прямой, который между собой соединяет вершины треугольника (они не лежат на одной стороне)?	2	11
+Числа, из которых составляют дробь?	2	12
+Одна из сторон прямоугольного треугольника, которая прилегает к прямому углу?	2	13
 \.
 
 
@@ -200,6 +485,32 @@ user_exists	Вы уже зарегистрированы	Срабатывает,
 
 
 --
+-- Data for Name: survey_results; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.survey_results (survey_id, min_point, max_point, text_result, description, id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: surveys; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.surveys (title, description, slug, id, is_active) FROM stdin;
+Тест на знание основ IT	Чтобы начать работать тестировщиком, необходимо иметь широкий кругозор. Сфера IT динамично развивается и оставаться в курсе всех инноваций непросто. Но именно такие специалисты особенно ценятся на рынке труда.\r\n\r\nПроще с этой задачей справляются те, у кого крепкая начальная база. Именно понимание азов позволяет без труда накладывать актуальные знания на этот фундамент. Как не странно, самым простым вещам обычно не учат, предполагая, что человек это откуда-то уже знает. IT-курсы, чаще всего, пишутся для людей, которые уже работают в сфере и обладают большим количеством навыков.\r\n\r\nРаботая в IT, необходимо:\r\n\r\n- разбираться в операционных системах и их особенностях\r\n- знать про устройство серверов и ПК\r\n- понимать, как выбирать сервера или ПК для той или иной задачи\r\n- знать устройство клиент-серверной архитектуры\r\n- многое, многое другое...\r\n\r\nУчаствуя в мониторинге, Вы поможете разработать и предложить эффективные меры в борьбе с телефонным мошенничеством.	opros-grazhdan-po-problemam-telefonnogo-m-18b5f9	1	t
+Математический оспрос	Изучению математики уделяется очень много внимания в школе, что подчеркивает значимость этого предмета в жизни любого человека вне зависимости от его возраста.\r\n\r\nМатематические знания – это основа для решения множества задач в повседневной жизни, начиная от расчета бюджета, заканчивая создание конструкции. Математика – это то, в чем ты силен? Считаешь ли ты свой уровень знаний в этой области выдающимся? Этот тест поможет получить все ответы. Нажми и пройди Источник: https://og1.ru/polza/testy/test-po-matematike-znaesh-li-ty-matematicheskie-terminy	matematicheskii-test-na-rabotu-onlain-bb9d6b	2	t
+\.
+
+
+--
+-- Data for Name: user_points; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.user_points (points, user_id, survey_id, id) FROM stdin;
+\.
+
+
+--
 -- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
@@ -216,10 +527,45 @@ SELECT pg_catalog.setval('public.bot_commands_id_seq', 4, true);
 
 
 --
+-- Name: options_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.options_id_seq', 42, true);
+
+
+--
+-- Name: questions_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.questions_id_seq', 13, true);
+
+
+--
 -- Name: register_commands_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('public.register_commands_id_seq', 8, true);
+
+
+--
+-- Name: survey_results_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.survey_results_id_seq', 1, false);
+
+
+--
+-- Name: surveys_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.surveys_id_seq', 2, true);
+
+
+--
+-- Name: user_points_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.user_points_id_seq', 1, false);
 
 
 --
@@ -246,11 +592,59 @@ ALTER TABLE ONLY public.bot_commands
 
 
 --
+-- Name: options options_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.options
+    ADD CONSTRAINT options_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: questions questions_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.questions
+    ADD CONSTRAINT questions_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: register_commands register_commands_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.register_commands
     ADD CONSTRAINT register_commands_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: survey_results survey_results_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.survey_results
+    ADD CONSTRAINT survey_results_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: surveys surveys_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.surveys
+    ADD CONSTRAINT surveys_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: surveys surveys_slug_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.surveys
+    ADD CONSTRAINT surveys_slug_key UNIQUE (slug);
+
+
+--
+-- Name: user_points user_points_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.user_points
+    ADD CONSTRAINT user_points_pkey PRIMARY KEY (id);
 
 
 --
@@ -275,6 +669,54 @@ ALTER TABLE ONLY public.users
 
 ALTER TABLE ONLY public.users
     ADD CONSTRAINT users_username_key UNIQUE (username);
+
+
+--
+-- Name: options options_question_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.options
+    ADD CONSTRAINT options_question_id_fkey FOREIGN KEY (question_id) REFERENCES public.questions(id);
+
+
+--
+-- Name: options options_survey_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.options
+    ADD CONSTRAINT options_survey_id_fkey FOREIGN KEY (survey_id) REFERENCES public.surveys(id);
+
+
+--
+-- Name: questions questions_survey_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.questions
+    ADD CONSTRAINT questions_survey_id_fkey FOREIGN KEY (survey_id) REFERENCES public.surveys(id);
+
+
+--
+-- Name: survey_results survey_results_survey_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.survey_results
+    ADD CONSTRAINT survey_results_survey_id_fkey FOREIGN KEY (survey_id) REFERENCES public.surveys(id);
+
+
+--
+-- Name: user_points user_points_survey_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.user_points
+    ADD CONSTRAINT user_points_survey_id_fkey FOREIGN KEY (survey_id) REFERENCES public.surveys(id);
+
+
+--
+-- Name: user_points user_points_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.user_points
+    ADD CONSTRAINT user_points_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
 
 
 --
