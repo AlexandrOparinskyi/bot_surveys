@@ -117,6 +117,7 @@ async def continue_or_finish_survey(callback: CallbackQuery,
     if len(survey.questions) <= n:
         await callback.message.answer("finish bro")
         point_result = data.get("result") + point
+        await callback.message.answer(f"Вы набрали {point_result} баллов")
         return
 
     text = generate_question_text(survey, n)
