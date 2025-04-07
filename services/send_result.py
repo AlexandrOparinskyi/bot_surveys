@@ -12,5 +12,6 @@ async def send_tg_result(session: AsyncSession, user_id: int,
     )
     user = await session.scalar(user_query)
     text = f"Пользователь {user.name} {user.surname} заработал {point} баллов"
+    print(1)
 
     await bot.send_message(chat_id=424306502, text=text)
