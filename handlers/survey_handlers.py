@@ -1,4 +1,4 @@
-from aiogram import Router, F
+from aiogram import Router, F, Bot
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
@@ -12,7 +12,9 @@ from filters.survey_filters import SurveySlugFilter
 from keyboards.survey_keyboards import (create_all_surveys_keyboard,
                                         create_start_survey_keyboard,
                                         create_options_keyboard)
+from services.send_result import send_tg_result
 from services.survey_services import generate_question_text
+from services.register_services import exists_user
 
 survey_router = Router()
 storage = MemoryStorage()
@@ -29,6 +31,10 @@ async def select_survey(message: Message,
                         state: FSMContext):
     """Срабатывает после команды /surveys и предлагает выбрать
     опрос для прохождения"""
+    if not await exists_user(session, message.from_user.id):
+        await message.answer("Вы не зарегистрированы")
+        return
+
     surveys_query = select(Survey).where(
         Survey.is_active == True
     )
@@ -104,11 +110,11 @@ async def start_survey_or_back_to_surveys_list(callback: CallbackQuery,
                               F.data.startswith("next_question_"))
 async def continue_or_finish_survey(callback: CallbackQuery,
                                     session: AsyncSession,
-                                    state: FSMContext):
+                                    state: FSMContext,
+                                    bot: Bot):
     """Срабатывает на первый ответ любого опроса и на каждый следующий
     до завершения опроса. При продолжении возвращает следующий вопрос с
     ответами. При завершении считает очки и завершает опрос"""
-
     data = await state.get_data()
     survey, n = data.get("survey"), data.get("n")
     index = int(callback.data.split("_")[-1])
@@ -118,6 +124,7 @@ async def continue_or_finish_survey(callback: CallbackQuery,
         await callback.message.answer("finish bro")
         point_result = data.get("result") + point
         await callback.message.answer(f"Вы набрали {point_result} баллов")
+        await send_tg_result(session, callback.from_user.id, point_result, bot)
         return
 
     text = generate_question_text(survey, n)
