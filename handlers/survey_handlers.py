@@ -4,16 +4,17 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message, CallbackQuery
-from sqlalchemy import select, and_
+from sqlalchemy import select, and_, insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.models import Survey
+from database.models import Survey, UserPoint
 from filters.survey_filters import SurveySlugFilter
 from keyboards.survey_keyboards import (create_all_surveys_keyboard,
                                         create_start_survey_keyboard,
                                         create_options_keyboard)
 from services.send_result import send_tg_result
-from services.survey_services import generate_question_text
+from services.survey_services import generate_question_text, get_result_for_survey, get_user_by_user_id, \
+    exists_user_point_in_survey
 from services.register_services import exists_user
 
 survey_router = Router()
@@ -23,6 +24,7 @@ storage = MemoryStorage()
 class SurveyState(StatesGroup):
     in_description = State()
     in_survey = State()
+    back_to_cb = State()
 
 
 @survey_router.message(Command(commands="surveys"))
@@ -50,6 +52,33 @@ async def select_survey(message: Message,
 
     await state.set_state(SurveyState.in_description)
     await message.answer(text, reply_markup=keyboard)
+
+
+@survey_router.callback_query(StateFilter(SurveyState.back_to_cb))
+async def select_survey_cb(callback: CallbackQuery,
+                           session: AsyncSession,
+                           state: FSMContext):
+    """Срабатывает после команды /surveys и предлагает выбрать
+    опрос для прохождения"""
+    if not await exists_user(session, callback.from_user.id):
+        await callback.message.answer("Вы не зарегистрированы")
+        return
+
+    surveys_query = select(Survey).where(
+        Survey.is_active == True
+    )
+    surveys = await session.scalars(surveys_query)
+
+    keyboard = create_all_surveys_keyboard(surveys.all())
+    text = ("Выберите, пожалуйста, опрос.\n\n"
+            "После выбора нужного опроса вам будет доступно его описание"
+            " и полное название, если оно не умещается в кнопке.\n\n"
+            "Вы сможете вернуться к списку, нажав"
+            " кнопку 'Назад к опросам', если выбранный опрос"
+            "вам не подходит")
+
+    await state.set_state(SurveyState.in_description)
+    await callback.message.answer(text, reply_markup=keyboard)
 
 
 @survey_router.callback_query(StateFilter(SurveyState.in_description),
@@ -85,8 +114,8 @@ async def start_survey_or_back_to_surveys_list(callback: CallbackQuery,
     Если пользователь выбрал возврат к списку - вызывается метод
     select_survey. Иначе пользователь начинает проходить опрос"""
     if callback.data == "back_to_surveys_list":
-        await state.clear()
-        await select_survey(callback.message, session, state)
+        await state.set_state(SurveyState.back_to_cb)
+        await select_survey_cb(callback, session, state)
         return
 
     data = await state.get_data()
@@ -96,8 +125,15 @@ async def start_survey_or_back_to_surveys_list(callback: CallbackQuery,
 
     if not survey:
         await callback.message.answer("Какая-то ошибка...\n"
-                                      "Опрос не найдет, попробуй "
+                                      "Опрос не найдет, попробуйте "
                                       "начать заново")
+        return
+
+    if await exists_user_point_in_survey(session,
+                                         callback.from_user.id,
+                                         survey):
+        await callback.message.answer("Вы уже проходили этот опрос")
+        await state.clear()
         return
 
     text = generate_question_text(survey, 0)
@@ -121,10 +157,25 @@ async def continue_or_finish_survey(callback: CallbackQuery,
     point = int(survey.questions[n - 1].options[index].is_correct)
 
     if len(survey.questions) <= n:
-        await callback.message.answer("finish bro")
         point_result = data.get("result") + point
         await callback.message.answer(f"Вы набрали {point_result} баллов")
-        await send_tg_result(session, callback.from_user.id, point_result, bot)
+
+        result = await get_result_for_survey(session, survey, point_result)
+        await callback.message.answer(f"{result.text_result}\n\n"
+                                      f"{result.description}")
+
+        user = await get_user_by_user_id(session, callback.from_user.id)
+        user_point_query = insert(UserPoint).values(
+            points=point_result,
+            user_id=user.id,
+            survey_id=survey.id
+        )
+        await session.execute(user_point_query)
+        await session.commit()
+
+        await send_tg_result(session, callback.from_user.id,
+                             point_result, bot)
+
         return
 
     text = generate_question_text(survey, n)
