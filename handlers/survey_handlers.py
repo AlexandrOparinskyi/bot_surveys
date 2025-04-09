@@ -132,7 +132,8 @@ async def start_survey_or_back_to_surveys_list(callback: CallbackQuery,
     if await exists_user_point_in_survey(session,
                                          callback.from_user.id,
                                          survey):
-        await callback.message.answer("Вы уже проходили этот опрос")
+        await callback.message.answer("Вы уже проходили этот опрос\n"
+                                      "Пожалуйста, выберите другой - /surveys")
         await state.clear()
         return
 
@@ -158,7 +159,6 @@ async def continue_or_finish_survey(callback: CallbackQuery,
 
     if len(survey.questions) <= n:
         point_result = data.get("result") + point
-        await callback.message.answer(f"Вы набрали {point_result} баллов")
 
         result = await get_result_for_survey(session, survey, point_result)
         await callback.message.answer(f"{result.text_result}\n\n"
