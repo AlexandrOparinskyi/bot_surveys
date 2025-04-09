@@ -174,7 +174,8 @@ async def continue_or_finish_survey(callback: CallbackQuery,
         await session.commit()
 
         await send_tg_result(session, callback.from_user.id,
-                             point_result, bot)
+                             point_result, bot, survey,
+                             data.get("answers") + [index])
 
         return
 
@@ -182,8 +183,10 @@ async def continue_or_finish_survey(callback: CallbackQuery,
     keyboard = create_options_keyboard()
 
     if n == 1:
-        await state.update_data({"n": n + 1, "result": point})
+        await state.update_data({"n": n + 1, "result": point,
+                                 "answers": [index]})
     else:
         await state.update_data({"n": n + 1,
-                                 "result": data.get("result") + point})
+                                 "result": data.get("result") + point,
+                                 "answers": data.get("answers") + [index]})
     await callback.message.answer(text, reply_markup=keyboard)
