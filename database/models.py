@@ -1,8 +1,8 @@
 from uuid import uuid4
 
 from slugify import slugify
-from sqlalchemy import (Column, Integer, String,
-                        Text, BigInteger, ForeignKey, Boolean)
+from sqlalchemy import (Column, Integer, String, Text, BigInteger,
+                        ForeignKey, Boolean, LargeBinary)
 from sqlalchemy.event import listens_for
 from sqlalchemy.orm import DeclarativeBase, relationship
 
@@ -138,3 +138,12 @@ class SurveyResult(Base):
     description = Column(Text, nullable=True)
 
     survey = relationship("Survey", lazy="selectin")
+
+
+class FAQ(Base):
+    """Модель вопросов/ответов"""
+    __tablename__ = "faq"
+
+    question = Column(String(255), nullable=False)
+    text = Column(Text, nullable=True)
+    file_path = Column(String(255), nullable=True)
