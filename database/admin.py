@@ -18,7 +18,6 @@ from database.models import (BotCommand, RegisterCommand, User, Survey,
 app = FastAPI()
 admin = Admin(app, engine)
 UPLOAD_FOLDER = "uploads"
-app.mount("/files", StaticFiles(directory=UPLOAD_FOLDER), name="files")
 
 
 class BotCommandAdmin(ModelView, model=BotCommand):
@@ -111,6 +110,9 @@ class FAQAdmin(ModelView, model=FAQ):
     ) -> None:
         form = await request.form()
         file = form["file"]
+
+        if not os.path.exists(UPLOAD_FOLDER):
+            os.makedirs(UPLOAD_FOLDER)
 
         if file and file.filename:
             file_extension = os.path.splitext(file.filename)[1]
