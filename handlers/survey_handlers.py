@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.models import Survey, UserPoint
 from filters.survey_filters import SurveySlugFilter
+from handlers.user_handlers import user_router
 from keyboards.survey_keyboards import (create_all_surveys_keyboard,
                                         create_start_survey_keyboard,
                                         create_options_keyboard)
@@ -33,22 +34,40 @@ async def select_survey(message: Message,
                         state: FSMContext):
     """Срабатывает после команды /surveys и предлагает выбрать
     опрос для прохождения"""
-    if not await exists_user(session, message.from_user.id):
+    user = await get_user_by_user_id(session, message.from_user.id)
+    if user is None:
         await message.answer("Вы не зарегистрированы")
         return
 
-    surveys_query = select(Survey).where(
-        Survey.is_active == True
+    completed_surveys_query = select(UserPoint.survey_id).where(
+        UserPoint.user_id == user.id
     )
-    surveys = await session.scalars(surveys_query)
+    completed_surveys = await session.scalars(completed_surveys_query)
 
-    keyboard = create_all_surveys_keyboard(surveys.all())
-    text = ("Выберите, пожалуйста, опрос.\n\n"
-            "После выбора нужного опроса вам будет доступно его описание"
-            " и полное название, если оно не умещается в кнопке.\n\n"
-            "Вы сможете вернуться к списку, нажав"
-            " кнопку 'Назад к опросам', если выбранный опрос"
-            "вам не подходит")
+    if completed_surveys:
+        uncompleted_surveys_query = select(Survey).where(
+            Survey.is_active == True,
+            Survey.id.notin_(completed_surveys)
+        )
+    else:
+        uncompleted_surveys_query = select(Survey).where(
+            Survey.is_active == True
+        )
+
+    surveys = await session.scalars(uncompleted_surveys_query)
+    all_surveys = surveys.all()
+
+    if len(all_surveys) == 0:
+        text = "Вы прошли все возможные опросы"
+        keyboard = None
+    else:
+        keyboard = create_all_surveys_keyboard(all_surveys)
+        text = ("Выберите, пожалуйста, опрос.\n\n"
+                "После выбора нужного опроса вам будет доступно его описание"
+                " и полное название, если оно не умещается в кнопке.\n\n"
+                "Вы сможете вернуться к списку, нажав"
+                " кнопку 'Назад к опросам', если выбранный опрос"
+                "вам не подходит")
 
     await state.set_state(SurveyState.in_description)
     await message.answer(text, reply_markup=keyboard)
