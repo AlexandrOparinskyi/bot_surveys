@@ -5,7 +5,6 @@ from uuid import uuid4
 from fastapi import FastAPI
 from sqladmin import Admin, ModelView
 from starlette.requests import Request
-from starlette.staticfiles import StaticFiles
 from wtforms.fields.simple import StringField, TextAreaField, FileField
 from wtforms.form import Form
 from wtforms.validators import DataRequired
