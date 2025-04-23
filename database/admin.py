@@ -21,6 +21,12 @@ UPLOAD_FOLDER = "uploads"
 app.mount("/files", StaticFiles(directory=UPLOAD_FOLDER), name="files")
 
 
+@app.on_event("startup")
+async def startup_event():
+    if not os.path.exists(UPLOAD_FOLDER):
+        os.makedirs(UPLOAD_FOLDER)
+
+
 class BotCommandAdmin(ModelView, model=BotCommand):
     name = "Команда бота"
     name_plural = "Команды бота"
