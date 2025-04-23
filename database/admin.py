@@ -2,10 +2,9 @@ import os.path
 from typing import Any
 from uuid import uuid4
 
-from fastapi import FastAPI, Response
+from fastapi import FastAPI
 from sqladmin import Admin, ModelView
 from starlette.requests import Request
-from starlette.responses import HTMLResponse
 from starlette.staticfiles import StaticFiles
 from wtforms.fields.simple import StringField, TextAreaField, FileField
 from wtforms.form import Form
@@ -115,7 +114,7 @@ class FAQAdmin(ModelView, model=FAQ):
 
         if file and file.filename:
             file_extension = os.path.splitext(file.filename)[1]
-            unique_filename = str(uuid4())[:4] + file_extension
+            unique_filename = str(uuid4())[:16] + file_extension
             file_path = os.path.join(UPLOAD_FOLDER, unique_filename)
 
             content = await file.read()
