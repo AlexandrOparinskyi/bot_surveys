@@ -1,4 +1,4 @@
-from aiogram import Router, F
+from aiogram import Router
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
@@ -63,7 +63,7 @@ async def fail_register_name(message: Message,
 
 @register_router.message(StateFilter(RegisterState.age),
                          lambda x: x.text.isdigit() and
-                                   0 < int(x.text) < 100)
+                         0 < int(x.text) < 100)
 async def register_age(message: Message,
                        session: AsyncSession,
                        state: FSMContext):

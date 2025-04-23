@@ -32,8 +32,9 @@ async def start_send_message_all_user(message: Message, state: FSMContext):
 
 
 @sender_router.callback_query(StateFilter(SenderState.confirm),
-                       F.data == "back_to_start_send_message")
-async def start_send_message_all_user(callback: CallbackQuery, state: FSMContext):
+                              F.data == "back_to_start_send_message")
+async def start_send_message_all_user_cb(callback: CallbackQuery,
+                                         state: FSMContext):
     await state.set_state(SenderState.in_process)
     await callback.message.answer("Введите сообщение, которое хотите "
                                   "отправить всем пользователям")
@@ -50,7 +51,7 @@ async def finish_send_message_all_user(message: Message, state: FSMContext):
 
 
 @sender_router.callback_query(StateFilter(SenderState.confirm),
-                       F.data == "send_message_all_user")
+                              F.data == "send_message_all_user")
 async def send_message_all_user(callback: CallbackQuery,
                                 state: FSMContext,
                                 session: AsyncSession,

@@ -41,7 +41,7 @@ class SurveyAdmin(ModelView, model=Survey):
 
 
 class QuestionAdmin(ModelView, model=Question):
-    name= "Вопрос"
+    name = "Вопрос"
     name_plural = "Вопросы"
     page_size = 25
     column_list = (Question.id, Question.survey_id, Question.text)
@@ -50,7 +50,7 @@ class QuestionAdmin(ModelView, model=Question):
 
 
 class OptionAdmin(ModelView, model=Option):
-    name= "Ответ"
+    name = "Ответ"
     name_plural = "Ответы"
     page_size = 25
     column_list = (Option.id, Question.survey_id, Option.question_id,
@@ -70,7 +70,8 @@ class UserPointAdmin(ModelView, model=UserPoint):
     name = "Количество баллов пользователя"
     name_plural = "Количество баллов пользователей"
     page_size = 25
-    column_list = (UserPoint.id, UserPoint.user, UserPoint.survey, UserPoint.points)
+    column_list = (UserPoint.id, UserPoint.user,
+                   UserPoint.survey, UserPoint.points)
 
 
 admin.add_view(BotCommandAdmin)

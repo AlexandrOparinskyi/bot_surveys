@@ -1,8 +1,6 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from database.models import Survey
-
 
 def create_all_surveys_keyboard(surveys) -> InlineKeyboardMarkup:
     kb_builder = InlineKeyboardBuilder()

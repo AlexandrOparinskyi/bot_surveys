@@ -9,14 +9,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.models import Survey, UserPoint
 from filters.survey_filters import SurveySlugFilter
-from handlers.user_handlers import user_router
 from keyboards.survey_keyboards import (create_all_surveys_keyboard,
                                         create_start_survey_keyboard,
                                         create_options_keyboard)
-from services.send_result import send_tg_result
-from services.survey_services import generate_question_text, get_result_for_survey, get_user_by_user_id, \
-    exists_user_point_in_survey
 from services.register_services import exists_user
+from services.send_result import send_tg_result
+from services.survey_services import (generate_question_text,
+                                      get_result_for_survey,
+                                      get_user_by_user_id,
+                                      exists_user_point_in_survey)
 
 survey_router = Router()
 storage = MemoryStorage()
