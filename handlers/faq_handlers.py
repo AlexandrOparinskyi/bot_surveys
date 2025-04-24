@@ -16,7 +16,11 @@ DATA_FOLDER = "/app/data"
 
 @faq_router.message(Command(commands="faq"))
 async def get_faq(message: Message, session: AsyncSession):
-    all_faq = await session.scalars(select(FAQ))
+    faq = await session.execute(select(FAQ))
+    all_faq = faq.all()
+    if len(all_faq) == 0:
+        await message.answer("Здесь пока пусто")
+        return
     keyboard = create_faq_keyboard(all_faq)
     await message.answer("<b>Часто задаваемые вопросы</b>\n\n"
                          "Выберите вопрос, который вас интересует",
