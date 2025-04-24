@@ -16,7 +16,7 @@ from database.models import (BotCommand, RegisterCommand, User, Survey,
 
 app = FastAPI()
 admin = Admin(app, engine)
-UPLOAD_FOLDER = "uploads"
+UPLOAD_FOLDER = "/app/uploads"
 
 
 class BotCommandAdmin(ModelView, model=BotCommand):
@@ -110,9 +110,6 @@ class FAQAdmin(ModelView, model=FAQ):
         form = await request.form()
         file = form["file"]
 
-        if not os.path.exists(UPLOAD_FOLDER):
-            os.makedirs(UPLOAD_FOLDER)
-
         if file and file.filename:
             file_extension = os.path.splitext(file.filename)[1]
             unique_filename = str(uuid4())[:16] + file_extension
@@ -122,7 +119,7 @@ class FAQAdmin(ModelView, model=FAQ):
             with open(file_path, "wb") as f:
                 f.write(content)
 
-            model.file_path = file_path
+            model.file_path = unique_filename
 
 
 admin.add_view(BotCommandAdmin)

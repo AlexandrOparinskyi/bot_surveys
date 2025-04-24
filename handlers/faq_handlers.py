@@ -1,3 +1,5 @@
+import os
+
 from aiogram import Router, F, Bot
 from aiogram.filters import Command
 from aiogram.types import Message, FSInputFile, CallbackQuery
@@ -8,6 +10,8 @@ from database.models import FAQ
 from keyboards.faq_keyboards import create_faq_keyboard
 
 faq_router = Router()
+
+DATA_FOLDER = "/app/data"
 
 
 @faq_router.message(Command(commands="faq"))
@@ -25,6 +29,7 @@ async def get_detail_faq(callback: CallbackQuery,
                          bot: Bot):
     _, _, faq_id = callback.data.split("_")
     faq = await session.scalar(select(FAQ).where(FAQ.id == int(faq_id)))
-    document = FSInputFile(faq.file_path)
+    file_path = os.path.join(DATA_FOLDER, faq.file_path)
+    document = FSInputFile(file_path)
     await bot.send_document(callback.from_user.id, document=document)
     await callback.message.answer(faq.text)
