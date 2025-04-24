@@ -29,7 +29,17 @@ async def get_detail_faq(callback: CallbackQuery,
                          bot: Bot):
     _, _, faq_id = callback.data.split("_")
     faq = await session.scalar(select(FAQ).where(FAQ.id == int(faq_id)))
-    file_path = os.path.join(DATA_FOLDER, faq.file_path)
-    document = FSInputFile(file_path)
-    await bot.send_document(callback.from_user.id, document=document)
-    await callback.message.answer(faq.text)
+    if faq.file_path:
+        file_path = os.path.join(DATA_FOLDER, faq.file_path)
+        _, file_exp = file_path.split(".")
+        document = FSInputFile(file_path)
+
+        if file_exp in ["jpeg", "jpg", "png", "webp", "gif"]:
+            await bot.send_photo(callback.from_user.id, document)
+        elif file_exp in ["mp4", "avi", "mov", "webm"]:
+            await bot.send_video(callback.from_user.id, document)
+        else:
+            await bot.send_document(callback.from_user.id, document)
+
+    if faq.text:
+        await bot.send_message(callback.from_user.id, faq.text)

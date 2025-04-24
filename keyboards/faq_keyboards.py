@@ -6,7 +6,7 @@ def create_faq_keyboard(faq) -> InlineKeyboardMarkup:
     kb_builder = InlineKeyboardBuilder()
     kb_builder.row(
         *[InlineKeyboardButton(
-            text=f.text,
+            text=f.question,
             callback_data=f"detail_faq_{f.id}"
         ) for f in faq],
         width=1
