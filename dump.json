@@ -2,12 +2,13 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 16.4
--- Dumped by pg_dump version 16.4
+-- Dumped from database version 17.2
+-- Dumped by pg_dump version 17.2
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
@@ -64,6 +65,42 @@ ALTER SEQUENCE public.bot_commands_id_seq OWNER TO postgres;
 --
 
 ALTER SEQUENCE public.bot_commands_id_seq OWNED BY public.bot_commands.id;
+
+
+--
+-- Name: faq; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.faq (
+    question character varying(255) NOT NULL,
+    text text,
+    file_path character varying(255),
+    id integer NOT NULL
+);
+
+
+ALTER TABLE public.faq OWNER TO postgres;
+
+--
+-- Name: faq_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.faq_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.faq_id_seq OWNER TO postgres;
+
+--
+-- Name: faq_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.faq_id_seq OWNED BY public.faq.id;
 
 
 --
@@ -175,6 +212,42 @@ ALTER SEQUENCE public.register_commands_id_seq OWNED BY public.register_commands
 
 
 --
+-- Name: send_results; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.send_results (
+    send_telegram boolean NOT NULL,
+    send_email boolean NOT NULL,
+    save_google_sheet boolean NOT NULL,
+    id integer NOT NULL
+);
+
+
+ALTER TABLE public.send_results OWNER TO postgres;
+
+--
+-- Name: send_results_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.send_results_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.send_results_id_seq OWNER TO postgres;
+
+--
+-- Name: send_results_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.send_results_id_seq OWNED BY public.send_results.id;
+
+
+--
 -- Name: survey_results; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -217,11 +290,11 @@ ALTER SEQUENCE public.survey_results_id_seq OWNED BY public.survey_results.id;
 --
 
 CREATE TABLE public.surveys (
-    title character varying(50) NOT NULL,
+    title character varying NOT NULL,
     description text NOT NULL,
     slug character varying(50) NOT NULL,
-    id integer NOT NULL,
-    is_active boolean NOT NULL
+    is_active boolean NOT NULL,
+    id integer NOT NULL
 );
 
 
@@ -332,6 +405,13 @@ ALTER TABLE ONLY public.bot_commands ALTER COLUMN id SET DEFAULT nextval('public
 
 
 --
+-- Name: faq id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.faq ALTER COLUMN id SET DEFAULT nextval('public.faq_id_seq'::regclass);
+
+
+--
 -- Name: options id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -350,6 +430,13 @@ ALTER TABLE ONLY public.questions ALTER COLUMN id SET DEFAULT nextval('public.qu
 --
 
 ALTER TABLE ONLY public.register_commands ALTER COLUMN id SET DEFAULT nextval('public.register_commands_id_seq'::regclass);
+
+
+--
+-- Name: send_results id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.send_results ALTER COLUMN id SET DEFAULT nextval('public.send_results_id_seq'::regclass);
 
 
 --
@@ -385,7 +472,8 @@ ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_
 --
 
 COPY public.alembic_version (version_num) FROM stdin;
-26deadbb7441
+cb2faca98c0e
+87bfdfccc152
 \.
 
 
@@ -394,9 +482,16 @@ COPY public.alembic_version (version_num) FROM stdin;
 --
 
 COPY public.bot_commands (command, text, id) FROM stdin;
-help	Это команда /help\r\nПотом здесь будет прописана вся важная информация и часто задаваемые вопросы	2
-start	Приветствую\r\nЯ бот для опросов\r\nДавай знакомиться	1
-test	Это тестовая команда	4
+start	START	1
+help	HELP	2
+\.
+
+
+--
+-- Data for Name: faq; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.faq (question, text, file_path, id) FROM stdin;
 \.
 
 
@@ -405,45 +500,12 @@ test	Это тестовая команда	4
 --
 
 COPY public.options (text, survey_id, question_id, is_correct, id) FROM stdin;
-Это просто программа на компьютере, как и другие - Word или Chrome.	1	1	f	4
-Это показатель того, какой процессор используется на компьютере. Например, 32-битный или 64-битный.	1	1	f	5
-Это набор взаимосвязанных программ, осуществляющих управление компьютером и взаимодействие с пользователем.	1	1	t	6
-Да, это такая же ОС, как и другие, просто для мобильных девайсов.	1	2	t	7
-Нет, операционные системы бывают только для ПК.	1	2	f	8
-Нет, Android это программа, которая ставится на операционную систему девайса. ОС на разных девайсах разные.	1	2	f	9
-Это блок, внутри которого находится дисковод и много разъемов для монитора, клавиатуры и компьютерной мышки.	1	3	f	10
-Это суммарный показатель вычислительной мощности компьютера, например 2,7 ГГц.	1	3	f	11
-Это элемент компьютера, с помощью которого обрабатывается информация, находящаяся как в собственной памяти, так и в памяти других устройств.	1	3	t	12
-32 и 64 бита	1	4	t	13
-86 и 64 бита	1	4	f	15
-iOS использует Intel, остальные используют AMD.	1	5	f	16
-Чаще всего используют Intel.	1	5	f	17
-Чаще всего используют ARM.	1	5	t	18
-Для долгосрочного хранения данных.	1	6	f	20
-Для правильной фрагментации памяти.	1	6	f	21
-Для быстрого доступа к данным.	1	6	t	19
-12 и 32 бита	1	4	f	14
-HDD - это твердотельный накопитель без подвижных частей. Более дешевый, чем SSD. HDD работает быстрее.	1	7	f	22
-HDD - это твердотельный накопитель без подвижных частей. Более дорогой, чем SSD. HDD работает быстрее.	1	7	f	23
-SSD - это твердотельный накопитель без подвижных частей. Более дорогой, чем HDD. SSD работает быстрее.	1	7	t	24
-USB отличаются по форме (micro-USB, mini-USB, lightning и т.д.) и пропускной способности (USB 2.0, USB 3.2).	1	8	t	25
-USB отличаются по пропускной способности (micro-USB, mini-USB, lightning и т.д.) и форме (USB 2.0, USB 3.2).	1	8	f	26
-Бывают только micro-USB и mini-USB	1	8	f	27
-Аксиома	2	9	t	28
-Абсцисса	2	9	f	29
-Аргумент	2	9	f	30
-Прямая	2	10	f	31
-Биссектриса	2	10	t	32
-Вектор	2	10	f	33
-Диагональ	2	11	t	34
-Градус	2	11	f	35
-Гипербола	2	11	f	36
-Знаменатель	2	12	t	37
-Индекс	2	12	f	38
-Слагаемое	2	12	f	39
-Интеграл	2	13	f	40
-Катет	2	13	t	41
-Ребро	2	13	f	42
+Тестовый ответ 1	2	1	t	1
+Тестовый ответ 2\n	2	1	f	2
+Тестовый ответ 3\n	2	1	f	3
+Тестовый ответ 1	2	2	t	4
+Тестовый ответ 2\n	2	2	f	5
+Тестовый ответ 3\n	2	2	f	6
 \.
 
 
@@ -452,19 +514,8 @@ USB отличаются по пропускной способности (micro
 --
 
 COPY public.questions (text, survey_id, id) FROM stdin;
-Что такое операционная система?	1	1
-Является ли Android операционной системой?	1	2
-Что такое процессор компьютера?	1	3
-Какие бывают разрядности у современных процессоров?	1	4
-Какой тип процессора чаще всего используют мобильные девайсы?	1	5
-Для чего компьютеру нужна RAM?	1	6
-Чем отличается HDD от SSD?	1	7
-Как отличаются между собой USB?	1	8
-Как называется утверждение, принимаемое без доказательств?	2	9
-Луч, имеющий начало в вершине угла (делит угол на две части)?	2	10
-Отрезок прямой, который между собой соединяет вершины треугольника (они не лежат на одной стороне)?	2	11
-Числа, из которых составляют дробь?	2	12
-Одна из сторон прямоугольного треугольника, которая прилегает к прямому углу?	2	13
+Тестовый вопрос 1	2	1
+Тестовый вопрос 2	2	2
 \.
 
 
@@ -473,14 +524,23 @@ COPY public.questions (text, survey_id, id) FROM stdin;
 --
 
 COPY public.register_commands (command, text, description, id) FROM stdin;
-register	Отлично\r\nТы решил зарегистрироваться, значит начнем знакомиться\r\nНапиши, пожалуйста, своё имя и фамилию через пробел	Срабатывает после команды /register и предлагает ввести имя и фамилию	1
-register_name	Хорошо\nТеперь укажите свой возраст\nПросто введите число	Срабатывает после ввода имени и фамилии и предлагает ввести возраст	2
+register	Отлично, давайте начнём:\nнапишите пожалуйста своё имя и фамилию через пробел	Срабатывает после команды /register и предлагает ввести имя и фамилию	1
+register_name	Хорошо, теперь укажите свой возраст\n(просто введите число)	Срабатывает после ввода имени и фамилии и предлагает ввести возраст	2
 fail_register_name	Какая-то ошибка...\nИмя и фамилию нужно ввести через пробел\nНапример "Иван Иванов"\nПопробуйте ищё раз	Срабатывает при неправильном вводе имени и фамилии и предлагает ввести их ещё раз	3
 register_age	Осталось ввести свой город и мы закончим с регистрацией	Срабатывает после ввода возраста и предлагает ввести город	4
 fail_register_age	Какая-то ошибка...\nВозраст необходимо ввести цифрами, например - 34\nПожалуйста, попробуйте ещё раз	Срабатывает после неудачного ввода возраста и предлагает ввести его ещё Срабатывает при неправильном вводе имени и фамилии и предлагает ввести их ещё раз	5
-register_city	Замечательно\nДавайте проверим все Ваши данные	Срабатывает после ввода города и предлагает подтвердить все свои данные.	6
-register_confirm	Спасибо за регистрацию\nТеперь вы можете проходить опросы\nДля этого необходимо ввести команду /surveys или найти нужный пункт в меню	Срабатывает после подтверждения регистрации	7
+register_city	Замечательно!\nДавайте проверим все Ваши данные:	Срабатывает после ввода города и предлагает подтвердить все свои данные.	6
+register_confirm	Спасибо за регистрацию,\nтеперь вы можете проходить опросы.\nДля этого необходимо ввести команду /surveys или найти нужный пункт в меню	Срабатывает после подтверждения регистрации	7
 user_exists	Вы уже зарегистрированы	Срабатывает, если пользователь пытается пройти регистрацию повторно и выдает ошибку	8
+\.
+
+
+--
+-- Data for Name: send_results; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.send_results (send_telegram, send_email, save_google_sheet, id) FROM stdin;
+t	t	t	1
 \.
 
 
@@ -489,6 +549,7 @@ user_exists	Вы уже зарегистрированы	Срабатывает,
 --
 
 COPY public.survey_results (survey_id, min_point, max_point, text_result, description, id) FROM stdin;
+2	0	2	Отлично	Вы прошли опрос!	1
 \.
 
 
@@ -496,9 +557,8 @@ COPY public.survey_results (survey_id, min_point, max_point, text_result, descri
 -- Data for Name: surveys; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.surveys (title, description, slug, id, is_active) FROM stdin;
-Тест на знание основ IT	Чтобы начать работать тестировщиком, необходимо иметь широкий кругозор. Сфера IT динамично развивается и оставаться в курсе всех инноваций непросто. Но именно такие специалисты особенно ценятся на рынке труда.\r\n\r\nПроще с этой задачей справляются те, у кого крепкая начальная база. Именно понимание азов позволяет без труда накладывать актуальные знания на этот фундамент. Как не странно, самым простым вещам обычно не учат, предполагая, что человек это откуда-то уже знает. IT-курсы, чаще всего, пишутся для людей, которые уже работают в сфере и обладают большим количеством навыков.\r\n\r\nРаботая в IT, необходимо:\r\n\r\n- разбираться в операционных системах и их особенностях\r\n- знать про устройство серверов и ПК\r\n- понимать, как выбирать сервера или ПК для той или иной задачи\r\n- знать устройство клиент-серверной архитектуры\r\n- многое, многое другое...\r\n\r\nУчаствуя в мониторинге, Вы поможете разработать и предложить эффективные меры в борьбе с телефонным мошенничеством.	opros-grazhdan-po-problemam-telefonnogo-m-18b5f9	1	t
-Математический оспрос	Изучению математики уделяется очень много внимания в школе, что подчеркивает значимость этого предмета в жизни любого человека вне зависимости от его возраста.\r\n\r\nМатематические знания – это основа для решения множества задач в повседневной жизни, начиная от расчета бюджета, заканчивая создание конструкции. Математика – это то, в чем ты силен? Считаешь ли ты свой уровень знаний в этой области выдающимся? Этот тест поможет получить все ответы. Нажми и пройди Источник: https://og1.ru/polza/testy/test-po-matematike-znaesh-li-ty-matematicheskie-terminy	matematicheskii-test-na-rabotu-onlain-bb9d6b	2	t
+COPY public.surveys (title, description, slug, is_active, id) FROM stdin;
+Тестовый опрос	Просто тестовый опрос	test_opros	t	2
 \.
 
 
@@ -507,6 +567,7 @@ COPY public.surveys (title, description, slug, id, is_active) FROM stdin;
 --
 
 COPY public.user_points (points, user_id, survey_id, id) FROM stdin;
+2	1	2	1
 \.
 
 
@@ -515,7 +576,7 @@ COPY public.user_points (points, user_id, survey_id, id) FROM stdin;
 --
 
 COPY public.users (user_id, username, name, surname, age, city, id) FROM stdin;
-424306502	oparinskyi	Иван	Иванов	27	Курск	5
+424306502	oparinskyi	Иван	Иванов	35	Сити	1
 \.
 
 
@@ -523,21 +584,28 @@ COPY public.users (user_id, username, name, surname, age, city, id) FROM stdin;
 -- Name: bot_commands_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.bot_commands_id_seq', 4, true);
+SELECT pg_catalog.setval('public.bot_commands_id_seq', 2, true);
+
+
+--
+-- Name: faq_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.faq_id_seq', 1, false);
 
 
 --
 -- Name: options_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.options_id_seq', 42, true);
+SELECT pg_catalog.setval('public.options_id_seq', 1, true);
 
 
 --
 -- Name: questions_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.questions_id_seq', 13, true);
+SELECT pg_catalog.setval('public.questions_id_seq', 2, true);
 
 
 --
@@ -548,10 +616,17 @@ SELECT pg_catalog.setval('public.register_commands_id_seq', 8, true);
 
 
 --
+-- Name: send_results_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.send_results_id_seq', 1, true);
+
+
+--
 -- Name: survey_results_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.survey_results_id_seq', 1, false);
+SELECT pg_catalog.setval('public.survey_results_id_seq', 1, true);
 
 
 --
@@ -565,14 +640,14 @@ SELECT pg_catalog.setval('public.surveys_id_seq', 2, true);
 -- Name: user_points_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.user_points_id_seq', 1, false);
+SELECT pg_catalog.setval('public.user_points_id_seq', 1, true);
 
 
 --
 -- Name: users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.users_id_seq', 5, true);
+SELECT pg_catalog.setval('public.users_id_seq', 1, true);
 
 
 --
@@ -589,6 +664,14 @@ ALTER TABLE ONLY public.alembic_version
 
 ALTER TABLE ONLY public.bot_commands
     ADD CONSTRAINT bot_commands_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: faq faq_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.faq
+    ADD CONSTRAINT faq_pkey PRIMARY KEY (id);
 
 
 --
@@ -613,6 +696,14 @@ ALTER TABLE ONLY public.questions
 
 ALTER TABLE ONLY public.register_commands
     ADD CONSTRAINT register_commands_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: send_results send_results_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.send_results
+    ADD CONSTRAINT send_results_pkey PRIMARY KEY (id);
 
 
 --

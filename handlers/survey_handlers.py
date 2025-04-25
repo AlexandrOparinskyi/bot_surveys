@@ -18,7 +18,8 @@ from services.send_result import send_tg_result
 from services.survey_services import (generate_question_text,
                                       get_result_for_survey,
                                       get_user_by_user_id,
-                                      exists_user_point_in_survey)
+                                      exists_user_point_in_survey,
+                                      get_send_results)
 
 survey_router = Router()
 storage = MemoryStorage()
@@ -180,6 +181,7 @@ async def continue_or_finish_survey(callback: CallbackQuery,
 
     if len(survey.questions) <= n:
         point_result = data.get("result") + point
+        send_result = await get_send_results(session)
 
         result = await get_result_for_survey(session, survey, point_result)
         await callback.message.answer(f"{result.text_result}\n\n"
@@ -194,14 +196,21 @@ async def continue_or_finish_survey(callback: CallbackQuery,
         await session.execute(user_point_query)
         await session.commit()
 
-        await send_tg_result(session, callback.from_user.id,
-                             point_result, bot, survey,
-                             data.get("answers") + [index])
-        await create_user_result(callback.from_user.id,
+        if send_result.send_telegram is True:
+            await send_tg_result(session,
+                                 callback.from_user.id,
+                                 point_result,
+                                 bot,
                                  survey,
-                                 data.get("answers") + [index],
-                                 session,
-                                 point_result)
+                                 data.get("answers") + [index])
+
+        if send_result.save_google_sheet is True:
+            await create_user_result(callback.from_user.id,
+                                     survey,
+                                     data.get("answers") + [index],
+                                     session,
+                                     point_result)
+
         return
 
     text = generate_question_text(survey, n)

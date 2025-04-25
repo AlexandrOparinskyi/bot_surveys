@@ -12,7 +12,8 @@ from wtforms.widgets.core import TextArea
 
 from database.connect import engine
 from database.models import (BotCommand, RegisterCommand, User, Survey,
-                             Question, Option, SurveyResult, UserPoint, FAQ)
+                             Question, Option, SurveyResult, UserPoint, FAQ,
+                             SendResult)
 
 app = FastAPI()
 admin = Admin(app, engine)
@@ -121,6 +122,14 @@ class FAQAdmin(ModelView, model=FAQ):
             model.file_path = unique_filename
 
 
+class SendResultAdmin(ModelView, model=SendResult):
+    name = "Отправка результата",
+    name_plural = "Отправка результата"
+    page_size = 10
+    column_list = (SendResult.send_telegram, SendResult.send_email,
+                   SendResult.save_google_sheet)
+
+
 admin.add_view(BotCommandAdmin)
 admin.add_view(RegisterCommandAdmin)
 admin.add_view(UserAdmin)
@@ -130,3 +139,4 @@ admin.add_view(OptionAdmin)
 admin.add_view(SurveyResultAdmin)
 admin.add_view(UserPointAdmin)
 admin.add_view(FAQAdmin)
+admin.add_view(SendResultAdmin)

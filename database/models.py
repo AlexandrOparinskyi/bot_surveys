@@ -147,3 +147,12 @@ class FAQ(Base):
     question = Column(String(255), nullable=False)
     text = Column(Text, nullable=True)
     file_path = Column(String(255), nullable=True)
+
+
+class SendResult(Base):
+    """Модель отправки результата"""
+    __tablename__ = "send_results"
+
+    send_telegram = Column(Boolean, nullable=False, default=True)
+    send_email = Column(Boolean, nullable=False, default=True)
+    save_google_sheet = Column(Boolean, nullable=False, default=True)

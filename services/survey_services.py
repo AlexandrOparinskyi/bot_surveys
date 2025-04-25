@@ -1,7 +1,7 @@
 from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.models import Survey, SurveyResult, User, UserPoint
+from database.models import Survey, SurveyResult, User, UserPoint, SendResult
 
 
 def generate_question_text(survey: Survey, n: int) -> str:
@@ -48,3 +48,8 @@ async def exists_user_point_in_survey(session: AsyncSession, user_id: int,
     user_point = await session.scalar(user_point_query)
     print(user_point, survey.id, user_id)
     return user_point is not None
+
+
+async def get_send_results(session: AsyncSession):
+    get_result = await session.execute(select(SendResult))
+    return get_result.first()[0]

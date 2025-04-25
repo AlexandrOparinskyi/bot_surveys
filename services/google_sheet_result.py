@@ -39,7 +39,7 @@ async def create_user_result(user_id: int,
     try:
         worksheet = sh.worksheet(survey.title)
     except gspread.exceptions.WorksheetNotFound:
-        worksheet = sh.add_worksheet(survey.title, rows=100, cols=len(survey.questions) + 5)
+        worksheet = sh.add_worksheet(survey.title, rows=300, cols=len(survey.questions) + 5)
         worksheet.append_row(["Имя пользователя"] + survey_questions + ["Общее кол-во баллов"])
 
     user_id_list = worksheet.col_values(1)
