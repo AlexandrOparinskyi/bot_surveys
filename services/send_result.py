@@ -26,19 +26,19 @@ async def send_tg_result(session: AsyncSession, user_id: int,
     for i in range(len(survey.questions)):
         text2 += f"<b>Вопрос {i + 1}:</b>  {survey.questions[i].text}\n"
         if answers[i] == 0:
-            text2 += (f"<b>   {survey.questions[i].options[answers[i]].text}"
+            text2 += (f"<b>   {survey.questions[i].options[0].text}"
                       f"</b>\n"
-                      f"   {survey.questions[i].options[answers[1]].text}\n"
-                      f"   {survey.questions[i].options[answers[2]].text}\n\n")
+                      f"   {survey.questions[i].options[1].text}\n"
+                      f"   {survey.questions[i].options[2].text}\n\n")
         elif answers[i] == 1:
-            text2 += (f"   {survey.questions[i].options[answers[i]].text}\n"
-                      f"   <b>{survey.questions[i].options[answers[1]].text}"
+            text2 += (f"   {survey.questions[i].options[0].text}\n"
+                      f"   <b>{survey.questions[i].options[1].text}"
                       f"</b>\n"
-                      f"   {survey.questions[i].options[answers[2]].text}\n\n")
+                      f"   {survey.questions[i].options[2].text}\n\n")
         elif answers[i] == 2:
-            text2 += (f"   {survey.questions[i].options[answers[i]].text}\n"
-                      f"   {survey.questions[i].options[answers[1]].text}\n"
-                      f"   <b>{survey.questions[i].options[answers[2]].text}"
+            text2 += (f"   {survey.questions[i].options[0].text}\n"
+                      f"   {survey.questions[i].options[1].text}\n"
+                      f"   <b>{survey.questions[i].options[2].text}"
                       f"</b>\n\n")
 
     for user_id in config.tg_bot.user_id:

@@ -12,6 +12,7 @@ from filters.survey_filters import SurveySlugFilter
 from keyboards.survey_keyboards import (create_all_surveys_keyboard,
                                         create_start_survey_keyboard,
                                         create_options_keyboard)
+from services.google_sheet_result import create_user_result
 from services.register_services import exists_user
 from services.send_result import send_tg_result
 from services.survey_services import (generate_question_text,
@@ -196,7 +197,11 @@ async def continue_or_finish_survey(callback: CallbackQuery,
         await send_tg_result(session, callback.from_user.id,
                              point_result, bot, survey,
                              data.get("answers") + [index])
-
+        await create_user_result(callback.from_user.id,
+                                 survey,
+                                 data.get("answers") + [index],
+                                 session,
+                                 point_result)
         return
 
     text = generate_question_text(survey, n)
