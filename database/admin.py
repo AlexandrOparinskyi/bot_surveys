@@ -111,8 +111,8 @@ class FAQAdmin(ModelView, model=FAQ):
         file = form["file"]
 
         if file and file.filename:
-            file_extension = os.path.splitext(file.filename)[1]
-            unique_filename = str(uuid4())[:16] + file_extension
+            filename, file_extension = os.path.splitext(file.filename)
+            unique_filename = f"{filename}_{str(uuid4())[:2]}.{file_extension}"
             file_path = os.path.join(UPLOAD_FOLDER, unique_filename)
 
             content = await file.read()
