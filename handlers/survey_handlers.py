@@ -14,6 +14,7 @@ from keyboards.survey_keyboards import (create_all_surveys_keyboard,
                                         create_options_keyboard)
 from services.google_sheet_result import create_user_result
 from services.register_services import exists_user
+from services.send_email import send_email
 from services.send_result import send_tg_result
 from services.survey_services import (generate_question_text,
                                       get_result_for_survey,
@@ -210,6 +211,13 @@ async def continue_or_finish_survey(callback: CallbackQuery,
                                      data.get("answers") + [index],
                                      session,
                                      point_result)
+
+        if send_result.send_email is True:
+            await send_email(callback.from_user.id,
+                             survey,
+                             data.get("answers") + [index],
+                             session,
+                             point_result)
 
         return
 

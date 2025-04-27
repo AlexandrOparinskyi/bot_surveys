@@ -23,10 +23,19 @@ class GoogleSheet:
 
 
 @dataclass
+class SMTPConfig:
+    host: str
+    port: int
+    username: str
+    password: str
+
+
+@dataclass
 class Config:
     tg_bot: TgBot
     db: DataBase
     google_sheet: GoogleSheet
+    smtp: SMTPConfig
 
 
 def load_config(path: str | None = None) -> Config:
@@ -46,5 +55,11 @@ def load_config(path: str | None = None) -> Config:
         ),
         google_sheet=GoogleSheet(
             g_id=env("GOOGLE_SHEET_ID")
+        ),
+        smtp=SMTPConfig(
+            host=env("SMTP_HOST"),
+            port=int(env("SMTP_PORT")),
+            username=env("SMTP_USER"),
+            password=env("SMTP_PASS"),
         )
     )
