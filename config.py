@@ -28,6 +28,7 @@ class SMTPConfig:
     port: int
     username: str
     password: str
+    recipient: str
 
 
 @dataclass
@@ -61,5 +62,6 @@ def load_config(path: str | None = None) -> Config:
             port=int(env("SMTP_PORT")),
             username=env("SMTP_USER"),
             password=env("SMTP_PASS"),
+            recipient=env("SMTP_RECIPIENT"),
         )
     )

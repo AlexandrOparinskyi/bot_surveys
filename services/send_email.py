@@ -65,11 +65,13 @@ async def send_email(user_id: int, survey: Survey, answers: list[int],
                      session: AsyncSession, points: int) -> None:
     user = await get_user_by_user_id(session, user_id)
     text = generate_text_for_email(user, survey, answers, points)
+    subject = (f"Отчет пользователя {user.name} {user.surname} по отчету"
+               f"{survey.title}")
 
     message = MIMEText(text, "html", _charset='utf-8')
-    message['Subject'] = 'Hello World!'
+    message['Subject'] = subject
     message['From'] = config.smtp.username
-    message['To'] = 'surveys@example.com'
+    message['To'] = config.smtp.recipient
 
     async with aiosmtplib.SMTP(hostname=config.smtp.host,
                                port=config.smtp.port) as smtp:
