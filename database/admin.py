@@ -181,7 +181,7 @@ class MoveAdmin(ModelView, model=Move):
             with open(file_path, "wb") as f:
                 f.write(content)
 
-            model.file_path_1 = unique_filename
+            model.file_path = unique_filename
 
 
 

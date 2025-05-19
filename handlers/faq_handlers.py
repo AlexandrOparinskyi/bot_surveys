@@ -88,3 +88,6 @@ async def get_detail_move(callback: CallbackQuery,
         video = FSInputFile(file_path)
 
         await bot.send_video(callback.from_user.id, video)
+
+    if file.text:
+        await bot.send_message(callback.from_user.id, file.text)
