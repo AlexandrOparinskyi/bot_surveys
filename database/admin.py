@@ -144,7 +144,7 @@ class FAQAdmin(ModelView, model=FAQ):
             with open(file_path, "wb") as f:
                 f.write(content)
 
-            model.file_path_2 = unique_filename
+            model.file_path_3 = unique_filename
 
 
 
