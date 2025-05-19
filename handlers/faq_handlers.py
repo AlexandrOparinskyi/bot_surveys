@@ -6,8 +6,8 @@ from aiogram.types import Message, FSInputFile, CallbackQuery
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.models import FAQ
-from keyboards.faq_keyboards import create_faq_keyboard
+from database.models import FAQ, Move
+from keyboards.faq_keyboards import create_faq_keyboard, create_move_keyboard
 
 faq_router = Router()
 
@@ -65,3 +65,26 @@ async def get_detail_faq(callback: CallbackQuery,
 
     if faq.text:
         await bot.send_message(callback.from_user.id, faq.text)
+
+
+@faq_router.message(Command(commands="move"))
+async def get_moves(message: Message, session: AsyncSession):
+    move = await session.scalars(select(Move))
+    keyboard = create_move_keyboard(move)
+    await message.answer("<b>Уроки в движении</b>\n\n"
+                         "Выберите вопрос, который вас интересует",
+                         reply_markup=keyboard)
+
+
+@faq_router.callback_query(F.data.startswith("detail_move_"))
+async def get_detail_move(callback: CallbackQuery,
+                         session: AsyncSession,
+                         bot: Bot):
+    _, _, faq_id = callback.data.split("_")
+    file = await session.scalar(select(Move).where(Move.id == int(faq_id)))
+    if file.file_path:
+        file_path = os.path.join(DATA_FOLDER, file.file_path)
+        _, file_exp = file_path.split(".")
+        video = FSInputFile(file_path)
+
+        await bot.send_video(callback.from_user.id, video)

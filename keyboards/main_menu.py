@@ -19,6 +19,10 @@ async def set_main_menu(bot: Bot):
         BotCommand(
             command="/faq",
             description="Часто задаваемые вопросы"
+        ),
+        BotCommand(
+            command="/move",
+            description="Уроки в движении"
         )
     ]
 

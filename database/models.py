@@ -151,6 +151,15 @@ class FAQ(Base):
     file_path_3 = Column(String(255), nullable=True)
 
 
+class Move(Base):
+    """Модель видео ответов"""
+    __tablename__ = "moves"
+
+    question = Column(String(255), nullable=False)
+    text = Column(Text, nullable=True)
+    file_path = Column(String(255), nullable=True)
+
+
 class SendResult(Base):
     """Модель отправки результата"""
     __tablename__ = "send_results"

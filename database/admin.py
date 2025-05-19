@@ -13,7 +13,7 @@ from wtforms.widgets.core import TextArea
 from database.connect import engine
 from database.models import (BotCommand, RegisterCommand, User, Survey,
                              Question, Option, SurveyResult, UserPoint, FAQ,
-                             SendResult)
+                             SendResult, Move)
 
 app = FastAPI()
 admin = Admin(app, engine)
@@ -147,6 +147,43 @@ class FAQAdmin(ModelView, model=FAQ):
             model.file_path_3 = unique_filename
 
 
+class MoveForm(Form):
+    question = StringField("Вопрос", validators=[DataRequired()])
+    text = TextAreaField("Ответ", widget=TextArea())
+    file = FileField("Файл")
+
+
+class MoveAdmin(ModelView, model=Move):
+    name = "Видео",
+    name_plural = "Видео"
+    page_size = 25
+    column_list = (Move.id, Move.question, Move.text, Move.file_path)
+    form = MoveForm
+    column_formatters = {
+        "file_path": lambda m, a: (
+            f"Скачать"
+            if m.file_path
+            else "Файл отсутствует"
+        )
+    }
+
+    async def on_model_change(
+        self, data: dict, model: Any, is_created: bool, request: Request
+    ) -> None:
+        form = await request.form()
+        file = form["file"]
+
+        if file and file.filename:
+            unique_filename = f"{str(uuid4())[:2]}_{file.filename}"
+            file_path = os.path.join(UPLOAD_FOLDER, unique_filename)
+
+            content = await file.read()
+            with open(file_path, "wb") as f:
+                f.write(content)
+
+            model.file_path_1 = unique_filename
+
+
 
 class SendResultAdmin(ModelView, model=SendResult):
     name = "Отправка результата",
@@ -154,6 +191,8 @@ class SendResultAdmin(ModelView, model=SendResult):
     page_size = 10
     column_list = (SendResult.send_telegram, SendResult.send_email,
                    SendResult.save_google_sheet)
+
+
 
 
 admin.add_view(BotCommandAdmin)
