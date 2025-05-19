@@ -29,8 +29,30 @@ async def get_detail_faq(callback: CallbackQuery,
                          bot: Bot):
     _, _, faq_id = callback.data.split("_")
     faq = await session.scalar(select(FAQ).where(FAQ.id == int(faq_id)))
-    if faq.file_path:
-        file_path = os.path.join(DATA_FOLDER, faq.file_path)
+    if faq.file_path_1:
+        file_path = os.path.join(DATA_FOLDER, faq.file_path_1)
+        _, file_exp = file_path.split(".")
+        document = FSInputFile(file_path)
+
+        if file_exp in ["jpeg", "jpg", "png", "webp", "gif"]:
+            await bot.send_photo(callback.from_user.id, document)
+        elif file_exp in ["mp4", "avi", "mov", "webm"]:
+            await bot.send_video(callback.from_user.id, document)
+        else:
+            await bot.send_document(callback.from_user.id, document)
+    if faq.file_path_2:
+        file_path = os.path.join(DATA_FOLDER, faq.file_path_2)
+        _, file_exp = file_path.split(".")
+        document = FSInputFile(file_path)
+
+        if file_exp in ["jpeg", "jpg", "png", "webp", "gif"]:
+            await bot.send_photo(callback.from_user.id, document)
+        elif file_exp in ["mp4", "avi", "mov", "webm"]:
+            await bot.send_video(callback.from_user.id, document)
+        else:
+            await bot.send_document(callback.from_user.id, document)
+    if faq.file_path_3:
+        file_path = os.path.join(DATA_FOLDER, faq.file_path_3)
         _, file_exp = file_path.split(".")
         document = FSInputFile(file_path)
 

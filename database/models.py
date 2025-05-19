@@ -146,7 +146,9 @@ class FAQ(Base):
 
     question = Column(String(255), nullable=False)
     text = Column(Text, nullable=True)
-    file_path = Column(String(255), nullable=True)
+    file_path_1 = Column(String(255), nullable=True)
+    file_path_2 = Column(String(255), nullable=True)
+    file_path_3 = Column(String(255), nullable=True)
 
 
 class SendResult(Base):

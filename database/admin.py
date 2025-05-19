@@ -88,14 +88,17 @@ class UserPointAdmin(ModelView, model=UserPoint):
 class FAQForm(Form):
     question = StringField("Вопрос", validators=[DataRequired()])
     text = TextAreaField("Ответ", widget=TextArea())
-    file = FileField("Файл")
+    file_1 = FileField("Файл")
+    file_2 = FileField("Файл")
+    file_3 = FileField("Файл")
 
 
 class FAQAdmin(ModelView, model=FAQ):
     name = "FAQ",
     name_plural = "FAQ"
     page_size = 25
-    column_list = (FAQ.id, FAQ.question, FAQ.text, FAQ.file_path)
+    column_list = (FAQ.id, FAQ.question, FAQ.text, FAQ.file_path_1,
+                   FAQ.file_path_2, FAQ.file_path_3)
     form = FAQForm
     column_formatters = {
         "file_path": lambda m, a: (
@@ -109,17 +112,18 @@ class FAQAdmin(ModelView, model=FAQ):
         self, data: dict, model: Any, is_created: bool, request: Request
     ) -> None:
         form = await request.form()
-        file = form["file"]
+        for i in range(1, 4):
+            file = form["file_1"]
 
-        if file and file.filename:
-            unique_filename = f"{str(uuid4())[:2]}_{file.filename}"
-            file_path = os.path.join(UPLOAD_FOLDER, unique_filename)
+            if file and file.filename:
+                unique_filename = f"{str(uuid4())[:2]}_{file.filename}"
+                file_path = os.path.join(UPLOAD_FOLDER, unique_filename)
 
-            content = await file.read()
-            with open(file_path, "wb") as f:
-                f.write(content)
+                content = await file.read()
+                with open(file_path, "wb") as f:
+                    f.write(content)
 
-            model.file_path = unique_filename
+                model.file_path = unique_filename
 
 
 class SendResultAdmin(ModelView, model=SendResult):
