@@ -112,18 +112,40 @@ class FAQAdmin(ModelView, model=FAQ):
         self, data: dict, model: Any, is_created: bool, request: Request
     ) -> None:
         form = await request.form()
-        for i in range(1, 4):
-            file = form["file_1"]
+        file = form["file_1"]
+        file2 = form["file_2"]
+        file3 = form["file_3"]
 
-            if file and file.filename:
-                unique_filename = f"{str(uuid4())[:2]}_{file.filename}"
-                file_path = os.path.join(UPLOAD_FOLDER, unique_filename)
+        if file and file.filename:
+            unique_filename = f"{str(uuid4())[:2]}_{file.filename}"
+            file_path = os.path.join(UPLOAD_FOLDER, unique_filename)
 
-                content = await file.read()
-                with open(file_path, "wb") as f:
-                    f.write(content)
+            content = await file.read()
+            with open(file_path, "wb") as f:
+                f.write(content)
 
-                model.file_path = unique_filename
+            model.file_path_1 = unique_filename
+
+        if file2 and file2.filename:
+            unique_filename = f"{str(uuid4())[:2]}_{file2.filename}"
+            file_path = os.path.join(UPLOAD_FOLDER, unique_filename)
+
+            content = await file2.read()
+            with open(file_path, "wb") as f:
+                f.write(content)
+
+            model.file_path_2 = unique_filename
+
+        if file3 and file3.filename:
+            unique_filename = f"{str(uuid4())[:2]}_{file3.filename}"
+            file_path = os.path.join(UPLOAD_FOLDER, unique_filename)
+
+            content = await file3.read()
+            with open(file_path, "wb") as f:
+                f.write(content)
+
+            model.file_path_2 = unique_filename
+
 
 
 class SendResultAdmin(ModelView, model=SendResult):
