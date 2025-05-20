@@ -27,7 +27,7 @@ from database.schemas import SurveyBase
 app = FastAPI()
 admin = Admin(app, engine)
 UPLOAD_FOLDER = "/app/uploads"
-templates = Jinja2Templates(directory="templates")
+templates = Jinja2Templates(directory="/app/templates")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Разрешить всем!
@@ -35,14 +35,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/static", StaticFiles(directory="/app/static"), name="static")
 
 
 @app.post("/create_poll", status_code=201)
 async def create_poll(survey: SurveyBase,
                       session: AsyncSession = Depends(get_db)):
-    print(1)
-    print(survey)
     survey_result = await session.execute(insert(Survey).values(
         title=survey.title,
         description=survey.description,
