@@ -1,11 +1,101 @@
+/* static/style.css */
+
 body {
-    text-align: center;
-    padding: 15px;
-    margin: 15px;
+  font-family: sans-serif;
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.create-poll {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 80%; /* Adjust as needed */
+  max-width: 800px; /* Maximum width */
+}
+
+.create-poll h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.create-poll label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #555;
+}
+
+.create-poll input[type="text"],
+.create-poll input[type="number"] {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box; /* Important to include padding and border in the element's total width and height */
+}
+
+.create-poll input[type="checkbox"] {
+    margin-left: 10px;
+}
+
+.create-poll button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  display: block;
+  margin: 10px auto; /* Center the button */
+}
+
+.create-poll button:hover {
+  background-color: #3e8e41;
+}
+
+.create-poll hr {
+  border: 1px solid #ddd;
+  margin: 20px 0;
+}
+
+#question-container {
+  margin-bottom: 20px;
 }
 
 .questions {
-    padding: 20px;
-    border: 1px solid red;
-    margin: 10px;
+  border: 1px solid #ddd;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  background-color: #f9f9f9;
 }
+
+/* Style for labels and inputs inside questions */
+.questions label {
+    margin-right: 5px;
+}
+
+.questions input[type="text"] {
+    width: calc(100% - 120px); /* Adjust width based on your layout */
+    display: inline-block;
+}
+
+/* Correct answers checkboxes */
+.questions input[type="checkbox"] {
+    margin-left: 5px;
+}
+
+#poll-form {
+  width: 100%;
+}
+

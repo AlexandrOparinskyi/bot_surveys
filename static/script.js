@@ -34,8 +34,6 @@ pollForm.addEventListener("submit", async event => {
     await savePoll();
 })
 
-
-
 async function savePoll() {
     let numQ = 1
     let hasErrorIsCorrect = false;

@@ -2,7 +2,6 @@ import os.path
 from typing import Any
 from uuid import uuid4
 
-from aiosmtplib import status
 from fastapi import FastAPI, status
 from fastapi.params import Depends
 from slugify import slugify
