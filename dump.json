@@ -74,7 +74,9 @@ ALTER SEQUENCE public.bot_commands_id_seq OWNED BY public.bot_commands.id;
 CREATE TABLE public.faq (
     question character varying(255) NOT NULL,
     text text,
-    file_path character varying(255),
+    file_path_1 character varying(255),
+    file_path_2 character varying(255),
+    file_path_3 character varying(255),
     id integer NOT NULL
 );
 
@@ -101,6 +103,42 @@ ALTER SEQUENCE public.faq_id_seq OWNER TO postgres;
 --
 
 ALTER SEQUENCE public.faq_id_seq OWNED BY public.faq.id;
+
+
+--
+-- Name: moves; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.moves (
+    question character varying(255) NOT NULL,
+    text text,
+    file_path character varying(255),
+    id integer NOT NULL
+);
+
+
+ALTER TABLE public.moves OWNER TO postgres;
+
+--
+-- Name: moves_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.moves_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.moves_id_seq OWNER TO postgres;
+
+--
+-- Name: moves_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.moves_id_seq OWNED BY public.moves.id;
 
 
 --
@@ -412,6 +450,13 @@ ALTER TABLE ONLY public.faq ALTER COLUMN id SET DEFAULT nextval('public.faq_id_s
 
 
 --
+-- Name: moves id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.moves ALTER COLUMN id SET DEFAULT nextval('public.moves_id_seq'::regclass);
+
+
+--
 -- Name: options id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -472,6 +517,7 @@ ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_
 --
 
 COPY public.alembic_version (version_num) FROM stdin;
+7ecbf846df96
 cb2faca98c0e
 87bfdfccc152
 \.
@@ -491,7 +537,15 @@ help	HELP	2
 -- Data for Name: faq; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.faq (question, text, file_path, id) FROM stdin;
+COPY public.faq (question, text, file_path_1, file_path_2, file_path_3, id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: moves; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.moves (question, text, file_path, id) FROM stdin;
 \.
 
 
@@ -500,12 +554,6 @@ COPY public.faq (question, text, file_path, id) FROM stdin;
 --
 
 COPY public.options (text, survey_id, question_id, is_correct, id) FROM stdin;
-Тестовый ответ 1	2	1	t	1
-Тестовый ответ 2\n	2	1	f	2
-Тестовый ответ 3\n	2	1	f	3
-Тестовый ответ 1	2	2	t	4
-Тестовый ответ 2\n	2	2	f	5
-Тестовый ответ 3\n	2	2	f	6
 \.
 
 
@@ -514,8 +562,6 @@ COPY public.options (text, survey_id, question_id, is_correct, id) FROM stdin;
 --
 
 COPY public.questions (text, survey_id, id) FROM stdin;
-Тестовый вопрос 1	2	1
-Тестовый вопрос 2	2	2
 \.
 
 
@@ -549,7 +595,6 @@ t	t	t	1
 --
 
 COPY public.survey_results (survey_id, min_point, max_point, text_result, description, id) FROM stdin;
-2	0	2	Отлично	Вы прошли опрос!	1
 \.
 
 
@@ -558,7 +603,6 @@ COPY public.survey_results (survey_id, min_point, max_point, text_result, descri
 --
 
 COPY public.surveys (title, description, slug, is_active, id) FROM stdin;
-Тестовый опрос	Просто тестовый опрос	test_opros	t	2
 \.
 
 
@@ -567,7 +611,6 @@ COPY public.surveys (title, description, slug, is_active, id) FROM stdin;
 --
 
 COPY public.user_points (points, user_id, survey_id, id) FROM stdin;
-2	1	2	1
 \.
 
 
@@ -595,17 +638,24 @@ SELECT pg_catalog.setval('public.faq_id_seq', 1, false);
 
 
 --
+-- Name: moves_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.moves_id_seq', 1, false);
+
+
+--
 -- Name: options_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.options_id_seq', 1, true);
+SELECT pg_catalog.setval('public.options_id_seq', 13, true);
 
 
 --
 -- Name: questions_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.questions_id_seq', 2, true);
+SELECT pg_catalog.setval('public.questions_id_seq', 6, true);
 
 
 --
@@ -626,21 +676,21 @@ SELECT pg_catalog.setval('public.send_results_id_seq', 1, true);
 -- Name: survey_results_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.survey_results_id_seq', 1, true);
+SELECT pg_catalog.setval('public.survey_results_id_seq', 2, true);
 
 
 --
 -- Name: surveys_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.surveys_id_seq', 2, true);
+SELECT pg_catalog.setval('public.surveys_id_seq', 13, true);
 
 
 --
 -- Name: user_points_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.user_points_id_seq', 1, true);
+SELECT pg_catalog.setval('public.user_points_id_seq', 2, true);
 
 
 --
@@ -672,6 +722,14 @@ ALTER TABLE ONLY public.bot_commands
 
 ALTER TABLE ONLY public.faq
     ADD CONSTRAINT faq_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: moves moves_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.moves
+    ADD CONSTRAINT moves_pkey PRIMARY KEY (id);
 
 
 --
