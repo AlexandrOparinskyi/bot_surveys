@@ -1,0 +1,11 @@
+body {
+    text-align: center;
+    padding: 15px;
+    margin: 15px;
+}
+
+.questions {
+    padding: 20px;
+    border: 1px solid red;
+    margin: 10px;
+}

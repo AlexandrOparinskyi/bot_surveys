@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Создание опроса</title>
+  <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+  <div class="create-poll">
+    <h1>Создание опроса</h1>
+    <form id="poll-form">
+      <label for="poll-name">Название опроса</label><input id="poll-name" type="text" >
+      <label for="poll-descr">Описание опроса</label><input id="poll-descr" type="text">
+      <hr>
+      <div id="question-container">
+        <div class="questions">
+          <label for="question-1">Вопрос 1  </label><input id="question-1" type="text"><br><br>
+          <label for="answer-q1-1">Ответ 1</label><input id="answer-q1-1" type="text"><input id="correct-q1-1" type="checkbox">
+          <label for="answer-q1-2">Ответ 2</label><input id="answer-q1-2" type="text"><input id="correct-q1-2" type="checkbox">
+          <label for="answer-q1-3">Ответ 3</label><input id="answer-q1-3" type="text"><input id="correct-q1-3" type="checkbox"><br>
+        </div>
+      </div>
+
+      <button id="add-question">Добавить вопрос</button><hr>
+      <label for="poll-active">Активный опрос</label><input id="poll-active" type="checkbox"><hr>
+      <button type="submit" id="save-poll">Сохранить опрос</button>
+    </form>
+  </div>
+</body>
+<script src="static/script.js"></script>
+</html>

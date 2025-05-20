@@ -2,22 +2,79 @@ import os.path
 from typing import Any
 from uuid import uuid4
 
-from fastapi import FastAPI
+from aiosmtplib import status
+from fastapi import FastAPI, status
+from fastapi.params import Depends
+from slugify import slugify
 from sqladmin import Admin, ModelView
+from sqlalchemy import insert
+from sqlalchemy.ext.asyncio import AsyncSession
+from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
+from starlette.responses import HTMLResponse
+from starlette.staticfiles import StaticFiles
+from starlette.templating import Jinja2Templates
 from wtforms.fields.simple import StringField, TextAreaField, FileField
 from wtforms.form import Form
 from wtforms.validators import DataRequired
 from wtforms.widgets.core import TextArea
 
-from database.connect import engine
+from database.connect import engine, get_db
 from database.models import (BotCommand, RegisterCommand, User, Survey,
                              Question, Option, SurveyResult, UserPoint, FAQ,
                              SendResult, Move)
+from database.schemas import SurveyBase
 
 app = FastAPI()
 admin = Admin(app, engine)
 UPLOAD_FOLDER = "/app/uploads"
+templates = Jinja2Templates(directory="templates")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Разрешить всем!
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+
+@app.post("/create_poll", status_code=201)
+async def create_poll(survey: SurveyBase,
+                      session: AsyncSession = Depends(get_db)):
+    print(1)
+    print(survey)
+    survey_result = await session.execute(insert(Survey).values(
+        title=survey.title,
+        description=survey.description,
+        is_active=survey.is_active,
+        slug=slugify(f"{survey.title[:40]}-{str(uuid4())[:6]}")
+    ).returning(Survey.id))
+    survey_id = survey_result.scalar_one()
+
+    for question in survey.questions:
+        question_result = await session.execute(insert(Question).values(
+            text=question.text,
+            survey_id=survey_id
+        ).returning(Question.id))
+        question_id = question_result.scalar_one()
+
+        for answer in question.answers:
+            await session.execute(insert(Option).values(
+                text=answer.text,
+                is_correct=answer.is_correct,
+                survey_id=survey_id,
+                question_id=question_id
+            ))
+    await session.commit()
+
+    return {"status": status.HTTP_201_CREATED,
+            "result": survey}
+
+
+@app.get("/create", response_class=HTMLResponse)
+async def create_poll_html(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
 
 
 class BotCommandAdmin(ModelView, model=BotCommand):

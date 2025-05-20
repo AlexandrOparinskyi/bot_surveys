@@ -10,8 +10,8 @@ def generate_question_text(survey: Survey, n: int) -> str:
         1: "B",
         2: "C"
     }
-
     text = f"{survey.questions[n].text}\n\n"
+
     for i, o in enumerate(survey.questions[n].options):
         text += f"<b>{data[i]}.</b>  {o.text}\n"
 
