@@ -21,7 +21,7 @@ from wtforms.widgets.core import TextArea
 from database.connect import engine, get_db
 from database.models import (BotCommand, RegisterCommand, User, Survey,
                              Question, Option, SurveyResult, UserPoint, FAQ,
-                             SendResult, Move)
+                             SendResult, Move, FAQVtb)
 from database.schemas import SurveyBase
 
 app = FastAPI()
@@ -56,6 +56,15 @@ async def create_poll(survey: SurveyBase,
                 survey_id=survey_id,
                 question_id=question_id
             ))
+    for result in survey.results:
+        await session.execute(insert(SurveyResult).values(
+            survey_id=survey_id,
+            min_point=result.min_point,
+            max_point=result.max_point,
+            text=result.text,
+            description=result.description
+        ))
+
     await session.commit()
 
     return {"status": status.HTTP_201_CREATED,
@@ -141,8 +150,8 @@ class FAQForm(Form):
 
 
 class FAQAdmin(ModelView, model=FAQ):
-    name = "FAQ",
-    name_plural = "FAQ"
+    name = "FAQ Райф",
+    name_plural = "FAQ Райф"
     page_size = 25
     column_list = (FAQ.id, FAQ.question, FAQ.text, FAQ.file_path_1,
                    FAQ.file_path_2, FAQ.file_path_3)
@@ -194,6 +203,94 @@ class FAQAdmin(ModelView, model=FAQ):
             model.file_path_3 = unique_filename
 
 
+class FAQFormVtb(Form):
+    question = StringField("Вопрос", validators=[DataRequired()])
+    text = TextAreaField("Ответ", widget=TextArea())
+    file_1 = FileField("Файл")
+    file_2 = FileField("Файл")
+    file_3 = FileField("Файл")
+    file_4 = FileField("Файл")
+    file_5 = FileField("Файл")
+
+
+class FAQVtbAdmin(ModelView, model=FAQVtb):
+    name = "FAQ ВТБ",
+    name_plural = "FAQ ВТБ"
+    page_size = 25
+    column_list = (FAQVtb.id, FAQVtb.question, FAQVtb.text,
+                   FAQVtb.file_path_1, FAQVtb.file_path_2, FAQVtb.file_path_3,
+                   FAQVtb.file_path_4, FAQVtb.file_path_5)
+    form = FAQFormVtb
+    column_formatters = {
+        "file_path": lambda m, a: (
+            f"Скачать"
+            if m.file_path
+            else "Файл отсутствует"
+        )
+    }
+
+    async def on_model_change(
+        self, data: dict, model: Any, is_created: bool, request: Request
+    ) -> None:
+        form = await request.form()
+        file = form["file_1"]
+        file2 = form["file_2"]
+        file3 = form["file_3"]
+        file4 = form["file_4"]
+        file5 = form["file_5"]
+
+        if file and file.filename:
+            unique_filename = f"{str(uuid4())[:2]}_{file.filename}"
+            file_path = os.path.join(UPLOAD_FOLDER, unique_filename)
+
+            content = await file.read()
+            with open(file_path, "wb") as f:
+                f.write(content)
+
+            model.file_path_1 = unique_filename
+
+        if file2 and file2.filename:
+            unique_filename = f"{str(uuid4())[:2]}_{file2.filename}"
+            file_path = os.path.join(UPLOAD_FOLDER, unique_filename)
+
+            content = await file2.read()
+            with open(file_path, "wb") as f:
+                f.write(content)
+
+            model.file_path_2 = unique_filename
+
+        if file3 and file3.filename:
+            unique_filename = f"{str(uuid4())[:2]}_{file3.filename}"
+            file_path = os.path.join(UPLOAD_FOLDER, unique_filename)
+
+            content = await file3.read()
+            with open(file_path, "wb") as f:
+                f.write(content)
+
+            model.file_path_3 = unique_filename
+
+        if file4 and file4.filename:
+            unique_filename = f"{str(uuid4())[:2]}_{file4.filename}"
+            file_path = os.path.join(UPLOAD_FOLDER, unique_filename)
+
+            content = await file4.read()
+            with open(file_path, "wb") as f:
+                f.write(content)
+
+            model.file_path_4 = unique_filename
+
+
+        if file5 and file5.filename:
+            unique_filename = f"{str(uuid4())[:2]}_{file5.filename}"
+            file_path = os.path.join(UPLOAD_FOLDER, unique_filename)
+
+            content = await file5.read()
+            with open(file_path, "wb") as f:
+                f.write(content)
+
+            model.file_path_5 = unique_filename
+
+
 class MoveForm(Form):
     question = StringField("Вопрос", validators=[DataRequired()])
     text = TextAreaField("Ответ", widget=TextArea())
@@ -240,8 +337,6 @@ class SendResultAdmin(ModelView, model=SendResult):
                    SendResult.save_google_sheet)
 
 
-
-
 admin.add_view(BotCommandAdmin)
 admin.add_view(RegisterCommandAdmin)
 admin.add_view(UserAdmin)
@@ -251,5 +346,6 @@ admin.add_view(OptionAdmin)
 admin.add_view(SurveyResultAdmin)
 admin.add_view(UserPointAdmin)
 admin.add_view(FAQAdmin)
+admin.add_view(FAQVtbAdmin)
 admin.add_view(SendResultAdmin)
 admin.add_view(MoveAdmin)

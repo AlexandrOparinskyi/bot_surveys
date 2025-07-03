@@ -17,8 +17,12 @@ async def set_main_menu(bot: Bot):
             description="Выбрать опрос"
         ),
         BotCommand(
-            command="/faq",
-            description="Часто задаваемые вопросы"
+            command="/faq_raif",
+            description="FAQ Райф"
+        ),
+        BotCommand(
+            command="/faq_vtb",
+            description="FAQ ВТБ"
         ),
         BotCommand(
             command="/move",

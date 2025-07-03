@@ -11,8 +11,16 @@ class QuestionBase(BaseModel):
     answers: list[OptionBase]
 
 
+class ResultBase(BaseModel):
+    min_point: int
+    max_point: int
+    text: str
+    description: str
+
+
 class SurveyBase(BaseModel):
     title: str
     description: str | None = None
     is_active: bool = False
     questions: list[QuestionBase]
+    results: list[ResultBase]

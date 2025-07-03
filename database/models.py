@@ -151,6 +151,19 @@ class FAQ(Base):
     file_path_3 = Column(String(255), nullable=True)
 
 
+class FAQVtb(Base):
+    """Модель вопросов/ответов ВТБ"""
+    __tablename__ = "faq_vtb"
+
+    question = Column(String(255), nullable=False)
+    text = Column(Text, nullable=True)
+    file_path_1 = Column(String(255), nullable=True)
+    file_path_2 = Column(String(255), nullable=True)
+    file_path_3 = Column(String(255), nullable=True)
+    file_path_4 = Column(String(255), nullable=True)
+    file_path_5 = Column(String(255), nullable=True)
+
+
 class Move(Base):
     """Модель видео ответов"""
     __tablename__ = "moves"
